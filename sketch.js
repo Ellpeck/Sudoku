@@ -127,11 +127,11 @@ function mousePressed() {
         }
     }
 
-    selectedField = null;
+    selectedField = undefined;
 }
 
 function mouseWheel(event) {
-    if (selectedField !== null) {
+    if (selectedField !== undefined) {
         let down = event.delta > 0;
 
         if (selectedField.number === null) {
