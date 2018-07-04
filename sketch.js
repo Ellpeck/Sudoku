@@ -133,8 +133,12 @@ function mousePressed() {
                 let num = (partX + 1) + partY * 3;
                 if (num <= size) {
                     if (selectedField.number === num) {
+                        filledNumbers--;
                         selectedField.number = null;
                     } else {
+                        if (selectedField.number === null) {
+                            filledNumbers++;
+                        }
                         selectedField.number = num;
                     }
                 } else {
