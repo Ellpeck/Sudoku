@@ -7,7 +7,7 @@ const numsToRemove = 60;
 const fieldScale = 90;
 
 let board;
-let selectedField;
+let selectedField = null;
 let filledNumbers = 0;
 
 function Field(x, y) {
@@ -116,36 +116,35 @@ function isPositionValid(x, y) {
 }
 
 function mousePressed() {
-    let x = floor(mouseX / fieldScale);
-    let y = floor(mouseY / fieldScale);
+    let scaleX = mouseX / fieldScale;
+    let scaleY = mouseY / fieldScale;
+    let x = floor(scaleX);
+    let y = floor(scaleY);
 
     if (x >= 0 && y >= 0 && x < size && y < size) {
         let field = board[x][y];
         if (!field.predetermined) {
-            selectedField = field;
-            return;
+            if (selectedField !== field) {
+                selectedField = field;
+                return;
+            } else {
+                let partX = floor((scaleX - x) * 3);
+                let partY = floor((scaleY - y) * 3);
+                let num = (partX + 1) + partY * 3;
+                if (num <= size) {
+                    if (selectedField.number === num) {
+                        selectedField.number = null;
+                    } else {
+                        selectedField.number = num;
+                    }
+                } else {
+                    return;
+                }
+            }
         }
     }
 
-    selectedField = undefined;
-}
-
-function mouseWheel(event) {
-    if (selectedField !== undefined) {
-        let down = event.delta > 0;
-
-        if (selectedField.number === null) {
-            selectedField.number = down ? size : 1;
-            filledNumbers++;
-        } else if (selectedField.number === (down ? 1 : size)) {
-            selectedField.number = null;
-            filledNumbers--;
-        } else {
-            selectedField.number += (down ? -1 : 1);
-        }
-
-        return false;
-    }
+    selectedField = null;
 }
 
 function draw() {
@@ -159,6 +158,24 @@ function draw() {
                 noStroke();
                 fill(200, 255, 200);
                 rect(x * fieldScale, y * fieldScale, fieldScale, fieldScale);
+
+                textSize(30);
+                let sizeThird = (size / 3);
+                let scaleThird = (fieldScale / 3);
+                for (let i = 0; i < size; i++) {
+                    let theX = x * fieldScale + (i % 3) * scaleThird;
+                    let theY = y * fieldScale + floor(i / 3) * scaleThird;
+
+                    noStroke();
+                    fill(0);
+                    textAlign(CENTER, CENTER);
+                    text(String(i + 1), theX + scaleThird / 2, theY + scaleThird / 2);
+
+                    stroke(0);
+                    noFill();
+                    strokeWeight(2);
+                    rect(theX, theY, scaleThird, scaleThird);
+                }
             }
 
             if (field.predetermined) {
@@ -182,7 +199,7 @@ function draw() {
                 line(x * fieldScale, y * fieldScale, (x + 1) * fieldScale, y * fieldScale);
             }
 
-            if (field.number !== null) {
+            if (field.number !== null && field !== selectedField) {
                 fill(0);
                 noStroke();
                 textAlign(CENTER, CENTER);
